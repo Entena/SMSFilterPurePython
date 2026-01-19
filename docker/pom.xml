@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.sms.filter</groupId>
+        <artifactId>smsfilter-root</artifactId>
+        <version>0.0.1-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>docker</artifactId>
+    <packaging>pom</packaging>
+
+    <name>SMS Filter :: Docker</name>
+    <description>Docker images for SMS Filter</description>
+
+    <properties>
+        <docker.build.platforms>linux/amd64,linux/arm64</docker.build.platforms>
+        <docker.build.image.tag>latest</docker.build.image.tag>
+    </properties>
+
+
+    <modules>
+        <module>backend-docker</module>
+    </modules>
+</project>
