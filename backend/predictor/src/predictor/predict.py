@@ -1,26 +1,37 @@
-from transformers import AutoModelForCausalLM, AutoTokenizer
-from settings import Settings, DefaultCategories
+from transformers import AutoTokenizer
+from llama_cpp import Llama
+from settings import Settings
 from .schemas import SMSFilterPrediction
 
 
 class SMSFilterPredictor:
-    def __init__(
-        self, model: AutoModelForCausalLM, tokenizer: AutoTokenizer, settings: Settings
-    ):
+    def __init__(self, tokenizer: AutoTokenizer, model: Llama, settings: Settings):
         self.settings = settings
-        self.model = model
         self.tokenizer = tokenizer
-        self.default_categories = {
-            f"S{i + 1}": cat for i, cat in enumerate(list(DefaultCategories))
-        }
-        self.additional_categories = {
-            f"S{i + len(self.default_categories) + 1}": c
-            for i, c in enumerate(settings.INCL)
-        }
+        self.model = model
         self.categories = {
-            **self.default_categories,
-            **self.additional_categories,
+            f"S{i + 1}": cat
+            for i, cat in enumerate(
+                [
+                    "VIOLENT_CRIMES",
+                    "NONVIOLENT_CRIMES",
+                    "SEX_RELATED_CRIMES",
+                    "CHILD_SEXUAL_EXPLOITATION",
+                    "DEFAMATION",
+                    "SPECIALIZED_ADVICE",
+                    "PRIVACY",
+                    "INTELLECTUAL_PROPERTY",
+                    "INDISCRIMINATE_WEAPONS",
+                    "HATE",
+                    "SUICIDE_AND_SELF_HARM",
+                    "SEXUAL_CONTENT",
+                    "ELECTIONS",
+                ]
+            )
         }
+        self.exclude = [
+            k for k, v in self.categories.items() if not getattr(self.settings, v)
+        ]
 
     def predict(self, sms: str) -> SMSFilterPrediction:
         conversation = [
@@ -34,23 +45,26 @@ class SMSFilterPredictor:
                 ],
             }
         ]
-        input_ids = self.tokenizer.apply_chat_template(
+        prompt = self.tokenizer.apply_chat_template(
             conversation,
-            return_tensors="pt",
-        ).to(self.model.device)
-        prompt_len = input_ids.shape[1]
-        output_ids = self.model.generate(input_ids, pad_token_id=0)
-        generated_token_ids = output_ids[:, prompt_len:]
-        result = (
-            self.tokenizer.decode(
-                generated_token_ids[0],
-                ignore_special_tokens=True,
-            )
-            .strip()
-            .strip("<|eot_id|>")
+            excluded_category_keys=self.exclude,
+            tokenize=False,
+            add_generation_prompt=True,
         )
+        completion = self.model(
+            prompt,
+            max_tokens=1024,
+            stop=["<|eot_id|>"],
+            echo=False,
+        )
+        result = completion["choices"][0]["text"].strip()
         if "unsafe" in result:
-            cat = self.categories[result.split("unsafe")[1].strip()]
+            try:
+                cat_key = result.split("unsafe")[1].strip()
+                cat = self.categories.get(cat_key, "Unknown")
+            except IndexError:
+                cat = "Unknown"
+
             return SMSFilterPrediction(
                 prediction=False,
                 category=cat,

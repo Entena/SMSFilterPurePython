@@ -22,22 +22,6 @@ class Quantization(str, Enum):
     Q8_0 = "Q8_0"
 
 
-class DefaultCategories(str, Enum):
-    VIOLENT_CRIMES = "Violent Crimes"
-    NONVIOLENT_CRIMES = "Non-violent Crimes"
-    SEX_RELATED_CRIMES = "Sex-related Crimes"
-    CHILD_SEXUAL_EXPLOITATION = "Child Sexual Exploitation"
-    DEFAMATION = "Defamation"
-    SPECIALIZED_ADVICE = "Specialized Advice"
-    PRIVACY = "Privacy"
-    INTELLECTUAL_PROPERTY = "Intellectual Property"
-    INDISCRIMINATE_WEAPONS = "Indiscriminate Weapons"
-    HATE = "Hate"
-    SUICIDE_AND_SELF_HARM = "Suicide & Self Harm"
-    SEXUAL_CONTENT = "Sexual Content"
-    ELECTIONS = "Elections"
-
-
 class Settings(BaseSettings):
     # Networking
     ALLOWED_HOSTS: list[str] = Field(..., description="Allowed hosts")
@@ -46,10 +30,21 @@ class Settings(BaseSettings):
     # Quantization
     QUANT: Quantization = Field(..., description="Quantization")
     # Categories
-    EXCL: list[DefaultCategories] = Field(
-        ..., description="Excluded default categories"
+    VIOLENT_CRIMES: bool = Field(..., description="Violent Crimes")
+    NONVIOLENT_CRIMES: bool = Field(..., description="Non-violent Crimes")
+    SEX_RELATED_CRIMES: bool = Field(..., description="Sex-related Crimes")
+    CHILD_SEXUAL_EXPLOITATION: bool = Field(
+        ..., description="Child Sexual Exploitation"
     )
-    INCL: list[str] = Field(..., description="Descriptions of additional categories")
+    DEFAMATION: bool = Field(..., description="Defamation")
+    SPECIALIZED_ADVICE: bool = Field(..., description="Specialized Advice")
+    PRIVACY: bool = Field(..., description="Privacy")
+    INTELLECTUAL_PROPERTY: bool = Field(..., description="Intellectual Property")
+    INDISCRIMINATE_WEAPONS: bool = Field(..., description="Indiscriminate Weapons")
+    HATE: bool = Field(..., description="Hate")
+    SUICIDE_AND_SELF_HARM: bool = Field(..., description="Suicide & Self Harm")
+    SEXUAL_CONTENT: bool = Field(..., description="Sexual Content")
+    ELECTIONS: bool = Field(..., description="Elections")
     model_config = SettingsConfigDict(
         env_file=os.getenv("ENV_FILE", ".env"),
         env_file_encoding="utf-8",

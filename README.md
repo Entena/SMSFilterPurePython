@@ -12,11 +12,21 @@ ALLOWED_HOSTS='["http://localhost:5173", "http://127.0.0.1:5173", "http://10.0.0
 # Application
 APP_DIR=/app
 # Quantization
-QUANT=Q4_K_M
-# Exclude
-EXCL='[]'
-# Include
-INCL='[]'
+QUANT=Q5_1
+# Categories
+VIOLENT_CRIMES=true
+NONVIOLENT_CRIMES=true
+SEX_RELATED_CRIMES=true
+CHILD_SEXUAL_EXPLOITATION=true
+DEFAMATION=true
+SPECIALIZED_ADVICE=true
+PRIVACY=true
+INTELLECTUAL_PROPERTY=true
+INDISCRIMINATE_WEAPONS=true
+HATE=true
+SUICIDE_AND_SELF_HARM=true
+SEXUAL_CONTENT=true
+ELECTIONS=true
 ```
 
 NOTE: Exclusions and Inclusions are not currently supported.
