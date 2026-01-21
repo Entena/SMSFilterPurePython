@@ -1,30 +1,36 @@
+from typing import Literal
 from pydantic import BaseModel, Field
 
 
 class SMSFilterRequest(BaseModel):
     sms: str = Field(..., description="SMS message to filter")
-    violent_crimes: bool | None = Field(None, description="Filter violent crimes")
-    nonviolent_crimes: bool | None = Field(None, description="Filter nonviolent crimes")
-    sex_related_crimes: bool | None = Field(
-        None, description="Filter sex-related crimes"
+    violent: Literal["None", "Unsafe", "Controversial"] | None = Field(
+        None, description="Block level for violent content"
     )
-    child_sexual_exploitation: bool | None = Field(
-        None, description="Filter child sexual exploitation"
+    nonviolent_illegal_acts: Literal["None", "Unsafe", "Controversial"] | None = Field(
+        None, description="Block level for nonviolent illegal acts"
     )
-    defamation: bool | None = Field(None, description="Filter defamation")
-    specialized_advice: bool | None = Field(
-        None, description="Filter specialized advice"
+    sexual_content_or_sexual_acts: Literal["None", "Unsafe", "Controversial"] | None = (
+        Field(None, description="Block level for sexual content or sexual acts")
     )
-    privacy: bool | None = Field(None, description="Filter privacy")
-    intellectual_property: bool | None = Field(
-        None, description="Filter intellectual property"
+    pii: Literal["None", "Unsafe", "Controversial"] | None = Field(
+        None, description="Block level for PII"
     )
-    indiscriminate_weapons: bool | None = Field(
-        None, description="Filter indiscriminate weapons"
+    suicide_and_self_harm: Literal["None", "Unsafe", "Controversial"] | None = Field(
+        None, description="Block level for suicide and self-harm"
     )
-    hate: bool | None = Field(None, description="Filter hate")
-    suicide_and_self_harm: bool | None = Field(
-        None, description="Filter suicide and self-harm"
+    unethical_acts: Literal["None", "Unsafe", "Controversial"] | None = Field(
+        None, description="Block level for unethical acts"
     )
-    sexual_content: bool | None = Field(None, description="Filter sexual content")
-    elections: bool | None = Field(None, description="Filter elections")
+    politically_sensitive_topics: Literal["None", "Unsafe", "Controversial"] | None = (
+        Field(None, description="Block level for politically sensitive topics")
+    )
+    copyright_violation: Literal["None", "Unsafe", "Controversial"] | None = Field(
+        None, description="Block level for copyright violation"
+    )
+    jailbreak: Literal["None", "Unsafe", "Controversial"] | None = Field(
+        None, description="Block level for jailbreak"
+    )
+    none: Literal["None", "Unsafe", "Controversial"] | None = Field(
+        None, description="Block level for none"
+    )

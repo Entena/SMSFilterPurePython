@@ -10,12 +10,6 @@ FROM builder_base AS habushu_builder
 
 ARG UV_DEPENDENCY_GROUP=smsfilter_dependency_group
 
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
-    build-essential \
-    cmake \
-    && rm -rf /var/lib/apt/lists/*
-
 RUN pip install uv==0.6.2
 
 WORKDIR /work-dir

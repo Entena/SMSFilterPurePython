@@ -1,8 +1,8 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from transformers import AutoTokenizer
-from llama_cpp import Llama
+import torch
+from transformers import AutoTokenizer, AutoModelForCausalLM
 import logging
 from .routers import sms_filter
 from settings import get_settings
@@ -14,17 +14,16 @@ logging.basicConfig(
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    settings = get_settings()
     logging.info("Loading tokenizer...")
     app.state.tokenizer = AutoTokenizer.from_pretrained(
-        "QuantFactory/Llama-Guard-3-1B-GGUF",
-        gguf_file=f"Llama-Guard-3-1B.{settings.QUANT.value}.gguf",
+        "Qwen/Qwen3Guard-Gen-0.6B",
     )
     logging.info("Tokenizer loaded.")
     logging.info("Loading model...")
-    app.state.model = Llama.from_pretrained(
-        repo_id="QuantFactory/Llama-Guard-3-1B-GGUF",
-        filename=f"Llama-Guard-3-1B.{settings.QUANT.value}.gguf",
+    app.state.model = AutoModelForCausalLM.from_pretrained(
+        "Qwen/Qwen3Guard-Gen-0.6B",
+        dtype=torch.bfloat16,
+        device_map="auto",
     )
     logging.info("Model loaded.")
     yield
