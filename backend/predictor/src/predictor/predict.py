@@ -1,3 +1,4 @@
+import asyncio
 from transformers import AutoTokenizer
 from llama_cpp import Llama
 from settings import Settings
@@ -29,11 +30,18 @@ class SMSFilterPredictor:
                 ]
             )
         }
-        self.exclude = [
-            k for k, v in self.categories.items() if not getattr(self.settings, v)
+        self.exclude_keys = [
+            k for k, v in self.categories.items() if getattr(self.settings, v) is False
         ]
+        self.exclude = [self.categories[k] for k in self.exclude_keys]
+        self.include = [
+            self.categories[k]
+            for k, v in self.categories.items()
+            if getattr(self.settings, v) is True
+        ] + ["UNKNOWN"]
+        self.lock = asyncio.Lock()
 
-    def predict(self, sms: str) -> SMSFilterPrediction:
+    async def predict(self, sms: str) -> SMSFilterPrediction:
         conversation = [
             {
                 "role": "user",
@@ -45,32 +53,41 @@ class SMSFilterPredictor:
                 ],
             }
         ]
-        prompt = self.tokenizer.apply_chat_template(
-            conversation,
-            excluded_category_keys=self.exclude,
-            tokenize=False,
-            add_generation_prompt=True,
-        )
-        completion = self.model(
-            prompt,
-            max_tokens=1024,
-            stop=["<|eot_id|>"],
-            echo=False,
-        )
-        result = completion["choices"][0]["text"].strip()
+        loop = asyncio.get_running_loop()
+        async with self.lock:
+
+            def _inference():
+                prompt = self.tokenizer.apply_chat_template(
+                    conversation,
+                    excluded_category_keys=self.exclude_keys,
+                    tokenize=False,
+                    add_generation_prompt=True,
+                )
+                completion = self.model(
+                    prompt,
+                    temperature=0.0,
+                    stop=["<|eot_id|>"],
+                )
+                return completion["choices"][0]["text"].strip()
+
+            result = await loop.run_in_executor(None, _inference)
         if "unsafe" in result:
             try:
                 cat_key = result.split("unsafe")[1].strip()
-                cat = self.categories.get(cat_key, "Unknown")
+                cat = self.categories.get(cat_key, "UNKNOWN")
             except IndexError:
-                cat = "Unknown"
+                cat = "UNKNOWN"
 
             return SMSFilterPrediction(
-                prediction=False,
-                category=cat,
+                blocked=True,
+                reason=cat,
+                included_categories=self.include,
+                excluded_categories=self.exclude,
             )
         else:
             return SMSFilterPrediction(
-                prediction=True,
-                category=None,
+                blocked=False,
+                reason=None,
+                included_categories=self.include,
+                excluded_categories=self.exclude,
             )

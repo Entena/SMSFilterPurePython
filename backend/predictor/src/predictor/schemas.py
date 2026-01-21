@@ -2,5 +2,7 @@ from pydantic import BaseModel
 
 
 class SMSFilterPrediction(BaseModel):
-    prediction: bool
-    category: str | None = None
+    blocked: bool
+    reason: str | None = None
+    included_categories: list[str]
+    excluded_categories: list[str]

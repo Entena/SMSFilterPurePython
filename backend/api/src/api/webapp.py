@@ -25,8 +25,6 @@ async def lifespan(app: FastAPI):
     app.state.model = Llama.from_pretrained(
         repo_id="QuantFactory/Llama-Guard-3-1B-GGUF",
         filename=f"Llama-Guard-3-1B.{settings.QUANT.value}.gguf",
-        n_gpu_layers=-1,
-        n_ctx=2048,
     )
     logging.info("Model loaded.")
     yield

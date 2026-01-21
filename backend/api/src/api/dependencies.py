@@ -3,37 +3,24 @@ from transformers import AutoTokenizer
 from llama_cpp import Llama
 from predictor import SMSFilterPredictor
 from settings import get_settings, Settings
+from .schemas import SMSFilterRequest
 
 
-def get_request_settings(
-    violent_crimes: bool = True,
-    nonviolent_crimes: bool = True,
-    sex_related_crimes: bool = True,
-    child_sexual_exploitation: bool = True,
-    defamation: bool = True,
-    specialized_advice: bool = True,
-    privacy: bool = True,
-    intellectual_property: bool = True,
-    indiscriminate_weapons: bool = True,
-    hate: bool = True,
-    suicide_and_self_harm: bool = True,
-    sexual_content: bool = True,
-    elections: bool = True,
-) -> Settings:
+def get_request_settings(request: SMSFilterRequest) -> Settings:
     update_data = {
-        "VIOLENT_CRIMES": violent_crimes,
-        "NONVIOLENT_CRIMES": nonviolent_crimes,
-        "SEX_RELATED_CRIMES": sex_related_crimes,
-        "CHILD_SEXUAL_EXPLOITATION": child_sexual_exploitation,
-        "DEFAMATION": defamation,
-        "SPECIALIZED_ADVICE": specialized_advice,
-        "PRIVACY": privacy,
-        "INTELLECTUAL_PROPERTY": intellectual_property,
-        "INDISCRIMINATE_WEAPONS": indiscriminate_weapons,
-        "HATE": hate,
-        "SUICIDE_AND_SELF_HARM": suicide_and_self_harm,
-        "SEXUAL_CONTENT": sexual_content,
-        "ELECTIONS": elections,
+        "VIOLENT_CRIMES": request.violent_crimes,
+        "NONVIOLENT_CRIMES": request.nonviolent_crimes,
+        "SEX_RELATED_CRIMES": request.sex_related_crimes,
+        "CHILD_SEXUAL_EXPLOITATION": request.child_sexual_exploitation,
+        "DEFAMATION": request.defamation,
+        "SPECIALIZED_ADVICE": request.specialized_advice,
+        "PRIVACY": request.privacy,
+        "INTELLECTUAL_PROPERTY": request.intellectual_property,
+        "INDISCRIMINATE_WEAPONS": request.indiscriminate_weapons,
+        "HATE": request.hate,
+        "SUICIDE_AND_SELF_HARM": request.suicide_and_self_harm,
+        "SEXUAL_CONTENT": request.sexual_content,
+        "ELECTIONS": request.elections,
     }
     filtered_updates = {k: v for k, v in update_data.items() if v is not None}
     return get_settings().model_copy(deep=True, update=filtered_updates)
