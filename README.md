@@ -1,6 +1,9 @@
 # SMSFilter
 A lightweight backend for filtering SMS messages based on safety constraints.
 
+## Forked from https://github.com/walkernr/SMSFilter/tree/qwen
+Forked due to divergent build systems. Will likely remerge later but this is cheap and easy
+
 ## Environment
 
 ```bash
